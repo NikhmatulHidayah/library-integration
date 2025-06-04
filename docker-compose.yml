@@ -1,0 +1,92 @@
+services:
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./user-service:/var/www
+    networks:
+      - microservices-network
+    depends_on:
+      - db-user
+
+  db-user:
+    image: mysql:8.0
+    container_name: db-user
+    platform: linux/arm64/v8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: user_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - microservices-network
+
+  phpmyadmin-user:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-user
+    environment:
+      PMA_HOST: db-user
+      PMA_PORT: 3306
+    ports:
+      - "8083:80"
+    networks:
+      - microservices-network
+    depends_on:
+      - db-user
+
+  book-service:
+    build:
+      context: ./book-service
+    container_name: book-service
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./book-service:/var/www
+    networks:
+      - microservices-network
+    depends_on:
+      - db-book
+
+  db-book:
+    image: mysql:8.0
+    container_name: db-book
+    platform: linux/arm64/v8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: book_db
+      MYSQL_USER: book
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3306"
+    volumes:
+      - db-book-data:/var/lib/mysql
+    networks:
+      - microservices-network
+
+  phpmyadmin-book:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-book
+    environment:
+      PMA_HOST: db-book
+      PMA_PORT: 3306
+    ports:
+      - "8084:80"
+    networks:
+      - microservices-network
+    depends_on:
+      - db-book
+
+volumes:
+  db-data:
+  db-book-data:
+
+networks:
+  microservices-network:
+    driver: bridge
