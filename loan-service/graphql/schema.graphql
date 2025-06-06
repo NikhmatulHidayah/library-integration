@@ -1,0 +1,31 @@
+type Query {
+  _empty: String
+}
+
+type Mutation {
+  createLoan(input: CreateLoanInput!): Loan @field(resolver: "App\\GraphQL\\Mutations\\CreateLoanMutation")
+  updateLoanStatus(id: ID!, status: LoanStatus!): Loan @field(resolver: "App\\GraphQL\\Mutations\\UpdateLoanStatusMutation")
+}
+
+input CreateLoanInput {
+  book_id: ID!
+  loan_date: String!
+  return_date: String
+}
+
+enum LoanStatus {
+  borrowed
+  returned
+  late
+}
+
+type Loan {
+  id: ID!
+  user_id: ID!
+  book_id: ID!
+  loan_date: String!
+  return_date: String
+  status: LoanStatus!
+  created_at: String!
+  updated_at: String!
+}

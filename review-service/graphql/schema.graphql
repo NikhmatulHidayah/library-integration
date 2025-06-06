@@ -1,0 +1,24 @@
+type Query {
+  _empty: String
+}
+
+type Mutation {
+  createReview(input: ReviewInput!): Review
+    @field(resolver: "App\\GraphQL\\Mutations\\CreateReviewMutation")
+}
+
+type Review {
+  id: ID!
+  book_id: ID!
+  user_id: ID!
+  rating: Int!
+  comment: String
+  created_at: String!
+  updated_at: String!
+}
+
+input ReviewInput {
+  book_id: ID!
+  rating: Int!
+  comment: String
+}

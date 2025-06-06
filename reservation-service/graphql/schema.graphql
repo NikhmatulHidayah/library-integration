@@ -1,0 +1,34 @@
+type Query {
+  _empty: String
+}
+
+type Mutation {
+  createReservation(input: CreateReservationInput!): Reservation
+    @field(resolver: "App\\GraphQL\\Mutations\\CreateReservationMutation")
+  
+  updateReservationStatus(id: ID!, status: ReservationStatus!): Reservation
+    @field(resolver: "App\\GraphQL\\Mutations\\UpdateReservationStatusMutation")
+}
+
+input CreateReservationInput {
+  book_id: ID!
+  reservation_date: String!
+  expire_date: String
+}
+
+enum ReservationStatus {
+  pending
+  approved
+  cancelled
+}
+
+type Reservation {
+  id: ID!
+  user_id: ID!
+  book_id: ID!
+  reservation_date: String!
+  status: ReservationStatus!
+  expire_date: String
+  created_at: String!
+  updated_at: String!
+}
