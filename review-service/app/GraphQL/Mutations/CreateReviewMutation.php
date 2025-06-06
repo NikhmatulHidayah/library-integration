@@ -30,7 +30,6 @@ class CreateReviewMutation
             throw new \Exception($validator->errors()->first());
         }
 
-        // Validasi book_id dengan query GraphQL eksternal
         $graphqlQuery = <<<'GRAPHQL'
         {
             books {
