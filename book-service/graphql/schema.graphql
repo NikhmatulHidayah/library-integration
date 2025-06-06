@@ -1,0 +1,43 @@
+type Query {
+  books: [Book!]! @all
+  book(id: ID!): Book @find
+  searchBooks(keyword: String!): [Book!]!
+    @field(resolver: "App\\GraphQL\\Queries\\BookQuery@searchBooks")
+}
+
+type Mutation {
+  createBook(input: BookInput!): Book
+    @field(resolver: "App\\GraphQL\\Mutations\\CreateBookMutation")
+
+  updateBook(id: ID!, input: BookInput!): Book
+    @field(resolver: "App\\GraphQL\\Mutations\\UpdateBookMutation")
+
+  deleteBook(id: ID!): Boolean
+    @field(resolver: "App\\GraphQL\\Mutations\\DeleteBookMutation")
+}
+
+type Book {
+  id: ID!
+  title: String!
+  author: String!
+  category: String
+  stock: Int!
+  created_at: String!
+  updated_at: String!
+  images: [BookImage!]! @hasMany
+}
+
+type BookImage {
+  id: ID!
+  book_id: ID!
+  image_url: String!
+  created_at: String!
+  updated_at: String!
+}
+
+input BookInput {
+  title: String!
+  author: String!
+  category: String
+  stock: Int!
+}

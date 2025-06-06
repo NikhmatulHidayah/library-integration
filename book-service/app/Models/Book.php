@@ -16,8 +16,8 @@ class Book extends Model
         'stock',
     ];
 
-    public function bookImages()
+    public function images()
     {
-        return $this->hasMany(BookImage::class);
+        return $this->hasMany(BookImage::class, 'book_id');
     }
 }

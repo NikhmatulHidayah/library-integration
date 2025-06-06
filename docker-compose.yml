@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   user-service:
     build:
@@ -15,7 +17,6 @@ services:
   db-user:
     image: mysql:8.0
     container_name: db-user
-    platform: linux/arm64/v8
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: user_db
@@ -57,7 +58,6 @@ services:
   db-book:
     image: mysql:8.0
     container_name: db-book
-    platform: linux/arm64/v8
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: book_db
@@ -83,9 +83,135 @@ services:
     depends_on:
       - db-book
 
+  loan-service:
+    build:
+      context: ./loan-service
+    container_name: loan-service
+    ports:
+      - "8085:8085"
+    volumes:
+      - ./loan-service:/var/www
+    networks:
+      - microservices-network
+    depends_on:
+      - db-loan
+
+  db-loan:
+    image: mysql:8.0
+    container_name: db-loan
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: loan_db
+      MYSQL_USER: loan
+      MYSQL_PASSWORD: password
+    ports:
+      - "3308:3306"
+    volumes:
+      - db-loan-data:/var/lib/mysql
+    networks:
+      - microservices-network
+
+  phpmyadmin-loan:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-loan
+    environment:
+      PMA_HOST: db-loan
+      PMA_PORT: 3306
+    ports:
+      - "8086:80"
+    networks:
+      - microservices-network
+    depends_on:
+      - db-loan
+
+  reservation-service:
+    build:
+      context: ./reservation-service
+    container_name: reservation-service
+    ports:
+      - "8087:8087"
+    volumes:
+      - ./reservation-service:/var/www
+    networks:
+      - microservices-network
+    depends_on:
+      - db-reservation
+
+  db-reservation:
+    image: mysql:8.0
+    container_name: db-reservation
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: reservation_db
+      MYSQL_USER: reservation
+      MYSQL_PASSWORD: password
+    ports:
+      - "3309:3306"
+    volumes:
+      - db-reservation-data:/var/lib/mysql
+    networks:
+      - microservices-network
+
+  phpmyadmin-reservation:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-reservation
+    environment:
+      PMA_HOST: db-reservation
+      PMA_PORT: 3306
+    ports:
+      - "8088:80"
+    networks:
+      - microservices-network
+    depends_on:
+      - db-reservation
+
+  review-service:
+    build:
+      context: ./review-service
+    container_name: review-service
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./review-service:/var/www
+    networks:
+      - microservices-network
+    depends_on:
+      - db-review
+
+  db-review:
+    image: mysql:8.0
+    container_name: db-review
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: review_db
+      MYSQL_USER: review
+      MYSQL_PASSWORD: password
+    ports:
+      - "3310:3306"
+    volumes:
+      - db-review-data:/var/lib/mysql
+    networks:
+      - microservices-network
+
+  phpmyadmin-review:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-review
+    environment:
+      PMA_HOST: db-review
+      PMA_PORT: 3306
+    ports:
+      - "8090:80"
+    networks:
+      - microservices-network
+    depends_on:
+      - db-review
+
 volumes:
   db-data:
   db-book-data:
+  db-loan-data:
+  db-reservation-data:
+  db-review-data:
 
 networks:
   microservices-network:
