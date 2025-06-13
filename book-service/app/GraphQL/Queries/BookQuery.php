@@ -29,6 +29,22 @@ class BookQuery
             ->where('title', 'like', "%{$keyword}%")
             ->orWhere('author', 'like', "%{$keyword}%")
             ->orWhere('category', 'like', "%{$keyword}%")
+            ->orWhere('id', 'like', "%{$keyword}%")
             ->get();
+    }
+
+    public function getBookById($_, array $args)
+    {
+       $bookId = $args['id'];
+
+       $validator = Validator::make($args, [
+           'id' => 'required|integer|exists:books,id',
+       ]);
+
+       if ($validator->fails()) {
+           throw new Exception("Invalid book ID.");
+       }
+
+       return Book::with('images')->find($bookId);
     }
 }
