@@ -6,13 +6,21 @@ use App\Models\Loan;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 class CreateLoanMutation
 {
-    public function __invoke($_, array $args)
+    public function __invoke($_, array $args, GraphQLContext $context)
     {
+        $token = $context->request()->bearerToken();
+
+        if (!$token) {
+            throw new \Exception("Unauthorized: Token not found.");
+        }
+
         try {
-            $payload = JWTAuth::parseToken()->getPayload();
+            JWTAuth::setToken($token);
+            $payload = JWTAuth::getPayload();
             $userId = $payload->get('id');
         } catch (\Exception $e) {
             throw new \Exception("Unauthorized: " . $e->getMessage());
@@ -30,26 +38,63 @@ class CreateLoanMutation
             throw new \Exception($validator->errors()->first());
         }
 
-                $graphqlQuery = <<<'GRAPHQL'
-        {
-            books {
-                id
-            }
+        $graphqlQuery = <<<'GRAPHQL'
+        query {
+          getBookById(id: "%s") {
+            id
+            title
+            author
+            category
+            stock
+          }
         }
         GRAPHQL;
 
-        $response = Http::post('http://172.19.0.16:8082/graphql', [
-            'query' => $graphqlQuery
+        $response = Http::post('http://172.19.0.7:8082/graphql', [
+            'query' => sprintf($graphqlQuery, $input['book_id'])
         ]);
 
         if ($response->failed()) {
-            throw new \Exception("Gagal menghubungi service buku.");
+            throw new \Exception("Failed to fetch book details.");
         }
 
-        $bookIds = collect($response->json('data.books'))->pluck('id')->toArray();
+        $book = $response->json('data.getBookById');
 
-        if (!in_array($input['book_id'], $bookIds)) {
-            throw new \Exception("Buku dengan ID {$input['book_id']} tidak ditemukan.");
+        if (!$book) {
+            throw new \Exception("Book with ID {$input['book_id']} not found.");
+        }
+
+        if ($book['stock'] <= 0) {
+            throw new \Exception("Book is out of stock.");
+        }
+
+        $newStock = $book['stock'] - 1;
+
+        $updateBookMutation = '
+        mutation {
+            updateBook(id: "' . $input['book_id'] . '", input: {
+                title: "' . $book['title'] . '",
+                author: "' . $book['author'] . '",
+                category: "' . $book['category'] . '",
+                stock: ' . $newStock . '
+            }) {
+                id
+                title
+                author
+                category
+                stock
+                created_at
+                updated_at
+            }
+        }
+        ';
+
+        $updateBookResponse = Http::withToken($token)->post('http://172.19.0.7:8082/graphql', [
+            'query' => $updateBookMutation
+        ]);
+
+        if ($updateBookResponse->failed()) {
+            throw new \Exception("Failed to update book stock.");
         }
 
         $loan = Loan::create([
