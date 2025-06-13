@@ -1,5 +1,7 @@
 type Query {
   _empty: String
+  getAllReviews: [Review] @field(resolver: "App\\GraphQL\\Queries\\GetAllReviewsQuery")
+  getReviewByBookId(book_id: ID!): [Review] @field(resolver: "App\\GraphQL\\Queries\\GetReviewByBookIdQuery")
 }
 
 type Mutation {
