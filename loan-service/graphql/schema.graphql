@@ -1,10 +1,14 @@
 type Query {
   _empty: String
+  allLoans: [Loan!]! @field(resolver: "App\\GraphQL\\Queries\\LoanQuery@getAllLoans")
+  loanByUser(user_id: ID!): [Loan!]! @field(resolver: "App\\GraphQL\\Queries\\LoanQuery@getLoanByUser")
 }
 
 type Mutation {
   createLoan(input: CreateLoanInput!): Loan @field(resolver: "App\\GraphQL\\Mutations\\CreateLoanMutation")
   updateLoanStatus(id: ID!, status: LoanStatus!): Loan @field(resolver: "App\\GraphQL\\Mutations\\UpdateLoanStatusMutation")
+  returnBook(id: ID!): Loan @field(resolver: "App\\GraphQL\\Mutations\\ReturnBookMutation")
+  lateBook(id: ID!): Loan @field(resolver: "App\\GraphQL\\Mutations\\LateBookMutation")
 }
 
 input CreateLoanInput {
