@@ -38,7 +38,7 @@ class CreateReservationMutation
         }
         GRAPHQL;
 
-        $response = Http::post('http://172.19.0.16:8082/graphql', [
+        $response = Http::post('http://172.19.0.7:8082/graphql', [
             'query' => $graphqlQuery
         ]);
 
