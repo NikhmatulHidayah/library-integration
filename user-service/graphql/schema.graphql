@@ -3,13 +3,13 @@ type User {
   name: String!
   email: String!
   role: String!
-  created_at: DateTime!
-  updated_at: DateTime!
+  created_at: String!
+  updated_at: String!
 }
 
 type Query {
-  users: [User!]! @all
-  user(id: ID!): User @find
+  users: [User!]! @field(resolver: "App\\GraphQL\\Queries\\UserQuery@users")
+  user(id: ID!): User @field(resolver: "App\\GraphQL\\Queries\\UserQuery@user")
 }
 
 type Mutation {
