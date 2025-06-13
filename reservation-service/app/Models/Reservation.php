@@ -13,4 +13,9 @@ class Reservation extends Model
         'status',
         'expire_date',
     ];
+
+    protected $casts = [
+        'reservation_date' => 'datetime',
+        'expire_date' => 'datetime',
+    ];
 }
