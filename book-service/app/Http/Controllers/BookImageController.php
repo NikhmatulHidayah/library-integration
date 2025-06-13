@@ -12,27 +12,14 @@ class BookImageController extends Controller
     {
         $request->validate([
             'book_id' => 'required|exists:books,id',
-            'image' => 'required|image|max:2048',
+            'image_url' => 'required|url',
         ]);
 
-        $image = $request->file('image');
-        $imageBase64 = base64_encode(file_get_contents($image));
-
-        $apiKey = 'db7b3539b3aa0fe22d45cdf248e4b2fc';
-
-        $response = Http::asForm()->post("https://api.imgbb.com/1/upload", [
-            'key' => $apiKey,
-            'image' => $imageBase64,
-        ]);
-
-        if (!$response->successful()) {
-            return response()->json(['error' => 'Failed to upload image'], 500);
-        }
-
-        $imageUrl = $response->json('data.url');
+        $bookId = $request->book_id;
+        $imageUrl = $request->image_url;
 
         $bookImage = BookImage::create([
-            'book_id' => $request->book_id,
+            'book_id' => $bookId,
             'image_url' => $imageUrl,
         ]);
 
