@@ -1,5 +1,9 @@
 type Query {
   _empty: String
+  getAllReservations: [Reservation]!
+    @field(resolver: "App\\GraphQL\\Queries\\ReservationQuery@getAllReservations")
+  getReservationByUserId(user_id: ID!): [Reservation]!
+    @field(resolver: "App\\GraphQL\\Queries\\ReservationQuery@getReservationByUserId")
 }
 
 type Mutation {
