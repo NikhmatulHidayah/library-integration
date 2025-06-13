@@ -1,6 +1,8 @@
 type Query {
   books: [Book!]! @all
   book(id: ID!): Book @find
+  getBookById(id: ID!): Book
+    @field(resolver: "App\\GraphQL\\Queries\\BookQuery@getBookById")
   searchBooks(keyword: String!): [Book!]!
     @field(resolver: "App\\GraphQL\\Queries\\BookQuery@searchBooks")
 }
